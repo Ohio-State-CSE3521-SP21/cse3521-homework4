@@ -72,17 +72,23 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
 function win_exists(board) {
   // check vertical
   for (var i = 0; i < 3; i++) {
-    if (!(board[i] == board[i + 3] == board[i + 6])) {
-      return false
+    if (board[i] == board[i + 3] == board[i + 6]) {
+      return true
     }
   }
   // check horizontal
   for (var i = 0; i < 3; i++) {
     let numVal = board[3 * i]
+    var all_equals = true
     for (var j = 3 * i; j <= 3 * i + 2; j++) {
-      if (board[j] != numVal) {
-        return false
+      // if all 3 numbers across the board horizontally are equal to each other, return true
+      if (board[j] != numVal) { 
+        all_equals = false
       }
+    }
+    // if all_equals is still true at this point, all 3 were equal
+    if (all_equals) {
+      return true
     }
   }
   // check diagonal
@@ -132,10 +138,28 @@ function utility(board,player) {
   * Hint: You can find the number of turns by counting the number of non-blank spaces
   *       (Or the number of turns remaining by counting blank spaces.)
   ***********************/
+  // if there is a draw
   if (!is_terminal(board)) {
-    return null
+    return 0
   }
-  
+  // figure out who won
+  var player_score = 0
+  var cpu_score = 0
+  var blanks = 0
+  for (var i = 0; i < 9; i++) {
+    if (board[i] == player) {
+      player_score++
+    } else if (board[i] == -1) {
+      blanks++
+    } else {
+      cpu_score++
+    }
+  }
+  if (player_score > cpu_score) {
+    blanks *= -1
+  }
+  let score = player_score - cpu_score - blanks
+  return score
 }
 
 function tictactoe_minimax_alphabeta(board,cpu_player,cur_player,alpha,beta) {
