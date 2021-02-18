@@ -34,20 +34,21 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
   //BASE CASE
   if(is_terminal(board)) //Stop if game is over
     return {
-      move:null,
-      score:utility(board,cpu_player) //How good was this result for us?
+      move: null,
+      score: utility(board,cpu_player) //How good was this result for us?
     }
 
   ++helper_expand_state_count; //DO NOT REMOVE
   //GENERATE SUCCESSORS
 
   var minimum_score = Infinity
-  var minimum_move = Infinity
+  var nextMove = -1
   for(let move of move_expand_order) { //For each possible move (i.e., action)
     if(board[move]!=-1) continue; //Already taken, can't move here (i.e., successor not valid)
     
     let new_board=board.slice(0); //Copy
     new_board[move]=cur_player; //Apply move
+    nextMove = move
     //Successor state: new_board
 
     //RECURSION
@@ -62,16 +63,15 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
     *
     * Hint: Should you find yourself in need of a very large number, try Infinity or -Infinity
     ***********************/
-    if (minimum_score > results.score) {
+    if (results.move == null) {
       minimum_score = results.score
-      minimum_move = results.move
     }
   }
 
   //Return results gathered from all sucessors (moves).
   //Which was the "best" move?  
   return {
-    move: minimum_move/* What do you return here? */,
+    move: nextMove/* What do you return here? */,
     score: minimum_score/* And here? */
   };
 }
