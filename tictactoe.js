@@ -79,7 +79,7 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
 function win_exists(board) {
   // check vertical
   for (var i = 0; i < 3; i++) {
-    if (board[i] == board[i + 3] == board[i + 6]) {
+    if (board[i] == board[i + 3] && board[i] == board[i + 6]) {
       return true
     }
   }
@@ -99,7 +99,8 @@ function win_exists(board) {
     }
   }
   // check diagonal
-  return board[0] == board[4] == board[8] || board[2] == board[4] == board[6]
+  return (board[0] != -1 && board[0] == board[4] && board[0] == board[8]) || 
+            (board[2] != -1 && board[2] == board[4] && board[2] == board[6])
 }
 
 function is_terminal(board) {
