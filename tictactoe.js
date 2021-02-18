@@ -79,6 +79,9 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
 function win_exists(board) {
   // check vertical
   for (var i = 0; i < 3; i++) {
+    if (board[i] == -1) {
+      continue
+    }
     if (board[i] == board[i + 3] && board[i] == board[i + 6]) {
       return true
     }
