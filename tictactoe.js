@@ -40,6 +40,9 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
 
   ++helper_expand_state_count; //DO NOT REMOVE
   //GENERATE SUCCESSORS
+
+  var minimum_score = Infinity
+  var minimum_move = Infinity
   for(let move of move_expand_order) { //For each possible move (i.e., action)
     if(board[move]!=-1) continue; //Already taken, can't move here (i.e., successor not valid)
     
@@ -59,13 +62,17 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
     *
     * Hint: Should you find yourself in need of a very large number, try Infinity or -Infinity
     ***********************/
+    if (minimum_score > results.score) {
+      minimum_score = results.score
+      minimum_move = results.move
+    }
   }
 
   //Return results gathered from all sucessors (moves).
   //Which was the "best" move?  
   return {
-    move: 0/* What do you return here? */,
-    score: 0/* And here? */
+    move: minimum_move/* What do you return here? */,
+    score: minimum_score/* And here? */
   };
 }
 
@@ -82,7 +89,7 @@ function win_exists(board) {
     var all_equals = true
     for (var j = 3 * i; j <= 3 * i + 2; j++) {
       // if all 3 numbers across the board horizontally are equal to each other, return true
-      if (board[j] != numVal) { 
+      if (numVal == -1 || board[j] != numVal) { 
         all_equals = false
       }
     }
