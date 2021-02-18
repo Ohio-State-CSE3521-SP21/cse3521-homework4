@@ -69,14 +69,7 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
   };
 }
 
-function is_terminal(board) {
-  ++helper_eval_state_count; //DO NOT REMOVE
-  
-  /*************************
-  * TASK: Implement the terminal test
-  * Return true if the game is finished (i.e, a draw or someone has won)
-  * Return false if the game is incomplete
-  *************************/
+function win_exists(board) {
   // check vertical
   for (var i = 0; i < 3; i++) {
     if (!(board[i] == board[i + 3] == board[i + 6])) {
@@ -94,6 +87,29 @@ function is_terminal(board) {
   }
   // check diagonal
   return board[0] == board[4] == board[8] || board[2] == board[4] == board[6]
+}
+
+function is_terminal(board) {
+  ++helper_eval_state_count; //DO NOT REMOVE
+  
+  /*************************
+  * TASK: Implement the terminal test
+  * Return true if the game is finished (i.e, a draw or someone has won)
+  * Return false if the game is incomplete
+  *************************/
+  // check for win
+  if (win_exists(board)) {
+    return true
+  }
+  // check if incomplete
+  // if there's any -1 in the board, it is incomplete
+  for (var i = 0; i < 9; i++) {
+    if (board[i] == -1) {
+      return false
+    }
+  }
+  // by the time we get here, we know that there is a draw
+  return true
 }
 
 function utility(board,player) {
@@ -116,6 +132,10 @@ function utility(board,player) {
   * Hint: You can find the number of turns by counting the number of non-blank spaces
   *       (Or the number of turns remaining by counting blank spaces.)
   ***********************/
+  if (!is_terminal(board)) {
+    return null
+  }
+  
 }
 
 function tictactoe_minimax_alphabeta(board,cpu_player,cur_player,alpha,beta) {
