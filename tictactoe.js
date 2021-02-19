@@ -2,6 +2,10 @@
 //(This affects alpha-beta pruning performance)
 let move_expand_order=[0,1,2,3,4,5,6,7,8]; //Naive (linear) ordering
 //let move_expand_order=[4,0,1,2,3,5,6,7,8]; //Better ordering?
+// let move_expand_order=[4,0,2,6,8,1,3,5,7]; //Even better??
+// let move_expand_order=[7,5,3,1,8,6,2,0,4]; //Worse??
+
+/* AUTHORS: Austin Schall.37 and John Choi.1655 */
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -34,12 +38,19 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
   //BASE CASE
   if(is_terminal(board)) //Stop if game is over
     return {
-      move:null,
-      score:utility(board,cpu_player) //How good was this result for us?
+      move: null,
+      score: utility(board,cpu_player) //How good was this result for us?
     }
 
   ++helper_expand_state_count; //DO NOT REMOVE
   //GENERATE SUCCESSORS
+
+  var best_score = Infinity
+  if(cur_player == cpu_player){
+    best_score = -Infinity;
+  }
+  
+  var nextMove = -1
   for(let move of move_expand_order) { //For each possible move (i.e., action)
     if(board[move]!=-1) continue; //Already taken, can't move here (i.e., successor not valid)
     
@@ -59,20 +70,31 @@ function tictactoe_minimax(board,cpu_player,cur_player) {
     *
     * Hint: Should you find yourself in need of a very large number, try Infinity or -Infinity
     ***********************/
+    if ((cur_player == cpu_player) && (results.score > best_score)) {
+      best_score = results.score;
+      nextMove = move;
+    }
+    if ((cur_player != cpu_player) && (results.score < best_score)){
+      best_score = results.score;
+      nextMove = move;
+    }
   }
 
   //Return results gathered from all sucessors (moves).
   //Which was the "best" move?  
   return {
-    move: 0/* What do you return here? */,
-    score: 0/* And here? */
+    move: nextMove/* What do you return here? */,
+    score: best_score/* And here? */
   };
 }
 
 function win_exists(board) {
   // check vertical
   for (var i = 0; i < 3; i++) {
-    if (board[i] == board[i + 3] == board[i + 6]) {
+    if (board[i] == -1) {
+      continue
+    }
+    if (board[i] == board[i + 3] && board[i] == board[i + 6]) {
       return true
     }
   }
@@ -82,7 +104,7 @@ function win_exists(board) {
     var all_equals = true
     for (var j = 3 * i; j <= 3 * i + 2; j++) {
       // if all 3 numbers across the board horizontally are equal to each other, return true
-      if (board[j] != numVal) { 
+      if (numVal == -1 || board[j] != numVal) { 
         all_equals = false
       }
     }
@@ -92,7 +114,8 @@ function win_exists(board) {
     }
   }
   // check diagonal
-  return board[0] == board[4] == board[8] || board[2] == board[4] == board[6]
+  return (board[0] != -1 && board[0] == board[4] && board[0] == board[8]) || 
+            (board[2] != -1 && board[2] == board[4] && board[2] == board[6])
 }
 
 function is_terminal(board) {
@@ -138,28 +161,54 @@ function utility(board,player) {
   * Hint: You can find the number of turns by counting the number of non-blank spaces
   *       (Or the number of turns remaining by counting blank spaces.)
   ***********************/
-  // if there is a draw
-  if (!is_terminal(board)) {
-    return 0
-  }
-  // figure out who won
-  var player_score = 0
-  var cpu_score = 0
+
   var blanks = 0
   for (var i = 0; i < 9; i++) {
-    if (board[i] == player) {
-      player_score++
-    } else if (board[i] == -1) {
-      blanks++
-    } else {
-      cpu_score++
+    if (board[i] == -1){
+      blanks++;
     }
   }
-  if (player_score > cpu_score) {
-    blanks *= -1
+
+
+  let winner = -1;
+  /* Win Exists */
+  for (var i = 0; i < 3; i++) {
+    if (board[i] == -1) {
+      continue
+    }
+    if (board[i] == board[i + 3] && board[i] == board[i + 6]) {
+      winner = board[i];
+    }
   }
-  let score = player_score - cpu_score - blanks
-  return score
+
+  // Horizontal check
+  for(var i = 0; i < 9; i+=3){
+    if (board[i] == -1) {
+      continue
+    }
+    if (board[i] == board[i + 1] && board[i] == board[i + 2]) {
+      winner = board[i];
+    }
+  }
+
+  // check diagonal
+  if((board[0] != -1 && board[0] == board[4] && board[0] == board[8]) || (board[2] != -1 && board[2] == board[4] && board[2] == board[6])){
+    winner = board[4];         
+  }
+
+  /* If there is a draw */
+  if(winner == -1){
+    return 0;
+  }
+
+  var score = 1 + blanks;
+  if(player == winner){
+    return score;
+  } else{
+    return (score * -1);
+  }
+
+
 }
 
 function tictactoe_minimax_alphabeta(board,cpu_player,cur_player,alpha,beta) {
@@ -171,6 +220,68 @@ function tictactoe_minimax_alphabeta(board,cpu_player,cur_player,alpha,beta) {
   *
   * Hint: Make sure you update the recursive function call to call this function!
   ***********************/
+
+  //BASE CASE
+  if(is_terminal(board)) //Stop if game is over
+    return {
+      move: null,
+      score: utility(board,cpu_player) //How good was this result for us?
+    }
+
+  ++helper_expand_state_count; //DO NOT REMOVE
+  //GENERATE SUCCESSORS
+
+  var best_score = Infinity
+  if(cur_player == cpu_player){
+    best_score = -Infinity;
+  }
+  
+  var nextMove = -1
+  for(let move of move_expand_order) { //For each possible move (i.e., action)
+    if(board[move]!=-1) continue; //Already taken, can't move here (i.e., successor not valid)
+    
+    let new_board=board.slice(0); //Copy
+    new_board[move]=cur_player; //Apply move
+    //Successor state: new_board
+
+    //RECURSION
+    // What will my opponent do if I make this move?
+    let results=tictactoe_minimax_alphabeta(new_board,cpu_player,1-cur_player, alpha, beta);
+
+    //MINIMAX
+    /***********************
+    * TASK: Implement minimax here. (What do you do with results.move and results.score ?)
+    * 
+    * Hint: You will need a little code outside the loop as well, but the main work goes here.
+    *
+    * Hint: Should you find yourself in need of a very large number, try Infinity or -Infinity
+    ***********************/
+    if ((cur_player == cpu_player) && (results.score > best_score)) {
+      best_score = results.score;
+      nextMove = move;
+    }
+    if ((cur_player != cpu_player) && (results.score < best_score)){
+      best_score = results.score;
+      nextMove = move;
+    }
+
+    if(cur_player == cpu_player){
+      alpha = Math.max(alpha, best_score);
+    } else{
+      beta = Math.min(beta, best_score);
+    }
+
+    if (alpha > beta){
+      break;
+    }
+  }
+
+  //Return results gathered from all sucessors (moves).
+  //Which was the "best" move?  
+  return {
+    move: nextMove/* What do you return here? */,
+    score: best_score/* And here? */
+  };
 }
 
 function debug(board,human_player) {
