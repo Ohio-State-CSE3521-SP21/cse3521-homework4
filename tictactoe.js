@@ -5,6 +5,8 @@ let move_expand_order=[0,1,2,3,4,5,6,7,8]; //Naive (linear) ordering
 // let move_expand_order=[4,0,2,6,8,1,3,5,7]; //Even better??
 // let move_expand_order=[7,5,3,1,8,6,2,0,4]; //Worse??
 
+/* AUTHORS: Austin Schall.37 and John Choi.1655 */
+
 /////////////////////////////////////////////////////////////////////////////
 
 function tictactoe_minimax(board,cpu_player,cur_player) {
